@@ -4,6 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
+    "@types/jest": "22.2.0",
     "@types/mongoose": "5.0.6",
     "@zeit/next-typescript": "0.0.10",
     "mongoose": "5.0.9",
@@ -12,7 +13,19 @@
     "react-dom": "16.2.0",
     "typescript": "2.7.2"
   },
+  "devDependencies": {
+    "jest": "22.4.2",
+    "ts-jest": "22.4.1"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"]
+  },
   "scripts": {
-    "dev": "next"
+    "dev": "next",
+    "test:dev": "jest"
   }
 }
