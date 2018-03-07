@@ -6,6 +6,7 @@ const MainLayout = (props: any) => (
     <Head>
       <title>React Tweets</title>
       <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <link rel="stylesheet" href="/static/styles/main.css" />
     </Head>
     <div>
       <div className="mainLayout">{props.children}</div>

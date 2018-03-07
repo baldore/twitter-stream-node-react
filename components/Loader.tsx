@@ -6,7 +6,7 @@ interface LoaderProps {
 
 const Loader = (props: LoaderProps) => (
   <div className={'loader ' + (props.paging ? 'active' : '')}>
-    <img src="svg/loader.svg" />
+    <img src="/static/images/loader.svg" />
   </div>
 )
 

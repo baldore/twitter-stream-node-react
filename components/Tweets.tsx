@@ -1,7 +1,7 @@
 import * as React from 'react'
 import Tweet from './Tweet'
 
-const getTweets = (tweets: any[]) =>
+const getTweets = (tweets: any[] = []) =>
   tweets.map(tweet => <Tweet key={tweet.twid} tweet={tweet} />)
 
 interface TweetsProps {
