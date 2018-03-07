@@ -29,4 +29,9 @@ describe('Tweet - getTweets', () => {
     await getTweets(5, 0)
     expect(Tweet.find).toHaveBeenLastCalledWith({}, { skip: 50, limit: 10 })
   })
+
+  it('should set all the tweets returned as active', async () => {
+    const tweets = (await getTweets(1, 0)) as any[]
+    tweets.forEach(tweet => expect(tweet.active).toBe(true))
+  })
 })
