@@ -4,7 +4,7 @@ import Head from 'next/head'
 const MainLayout = (props: any) => (
   <div>
     <Head>
-      <title>Hello World</title>
+      <title>React Tweets</title>
       <meta name="viewport" content="width=device-width, initial-scale=1" />
     </Head>
     <div>
