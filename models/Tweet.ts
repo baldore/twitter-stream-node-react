@@ -2,7 +2,7 @@ import * as mongoose from 'mongoose'
 
 const schema = new mongoose.Schema({
   twid: String,
-  active: Boolean,
+  active: String,
   author: String,
   avatar: String,
   body: String,
