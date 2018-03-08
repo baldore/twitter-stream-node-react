@@ -1,11 +1,12 @@
 import * as React from 'react'
-import Tweet from './Tweet'
+import TweetComponent from './Tweet'
+import { Tweet } from '../types/tweets'
 
 const getTweets = (tweets: any[] = []) =>
-  tweets.map(tweet => <Tweet key={tweet.twid} tweet={tweet} />)
+  tweets.map(tweet => <TweetComponent key={tweet.twid} tweet={tweet} />)
 
 interface TweetsProps {
-  tweets: any[]
+  tweets: Tweet[]
 }
 
 const Tweets = (props: TweetsProps) => (

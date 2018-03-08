@@ -11,7 +11,7 @@ interface IndexPageProps {
 
 const Index: PageComponent = ({ tweets }: IndexPageProps) => (
   <MainLayout>
-    <TweetsApp initialTweets={tweets} />
+    <TweetsApp tweets={tweets} />
   </MainLayout>
 )
 

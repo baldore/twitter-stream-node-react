@@ -5,16 +5,14 @@ import NotificationBar from './NotificationBar'
 import { Tweet } from '../types/tweets'
 
 interface TweetsAppProps {
-  initialTweets: Tweet[]
+  tweets: Tweet[]
 }
 
 class TweetsApp extends React.Component<TweetsAppProps> {
   render() {
-    console.log('what?', this.props)
     return (
       <div className="tweets-app">
-        <h1>Hola mundo genial</h1>
-        {/* <Tweets /> */}
+        <Tweets tweets={this.props.tweets} />
         {/* <Loader />
         <NotificationBar /> */}
 
