@@ -10,13 +10,17 @@
     "@types/mongoose": "5.0.6",
     "@types/next": "2.4.8",
     "@types/react": "16.0.40",
+    "@types/socket.io": "1.4.31",
     "@zeit/next-typescript": "0.0.10",
     "body-parser": "1.18.2",
     "express": "4.16.2",
     "mongoose": "5.0.9",
     "next": "5.0.0",
+    "ntwitter": "0.5.0",
     "react": "16.2.0",
     "react-dom": "16.2.0",
+    "rxjs": "5.5.6",
+    "socket.io": "2.0.4",
     "typescript": "2.7.2"
   },
   "devDependencies": {
@@ -29,7 +33,14 @@
       "^.+\\.tsx?$": "ts-jest"
     },
     "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
-    "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"]
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ]
   },
   "scripts": {
     "build": "next build",
