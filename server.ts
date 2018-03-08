@@ -1,3 +1,4 @@
+import 'isomorphic-fetch'
 import * as http from 'http'
 import * as next from 'next'
 import * as express from 'express'
@@ -5,6 +6,7 @@ import * as bodyParser from 'body-parser'
 import * as mongoose from 'mongoose'
 import * as socketIO from 'socket.io'
 import { setupTweetsStreaming } from './utils/tweetsStream'
+import tweetsRouter from './routes/tweets'
 
 const app = next({ dev: true })
 const handle = app.getRequestHandler()
@@ -22,12 +24,8 @@ function setupServer() {
   app.use(bodyParser.json())
   app.use(bodyParser.urlencoded({ extended: false }))
 
-  // Restful will be here somehow
-  app.get('/foo', (req, res) => {
-    res.send({
-      foo: 'bar',
-    })
-  })
+  // Routers
+  app.use(tweetsRouter)
 
   app.get('*', (req, res) => {
     return handle(req, res)

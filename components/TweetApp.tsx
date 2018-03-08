@@ -2,22 +2,31 @@ import * as React from 'react'
 import Tweets from './Tweets'
 import Loader from './Loader'
 import NotificationBar from './NotificationBar'
+import { Tweet } from '../types/tweets'
 
-const makeAjaxCall = () => {}
+interface TweetsAppProps {
+  initialTweets: Tweet[]
+}
 
-const TweetsApp = () => (
-  <div className="tweets-app" onClick={makeAjaxCall}>
-    <Tweets />
-    <Loader />
-    <NotificationBar />
+class TweetsApp extends React.Component<TweetsAppProps> {
+  render() {
+    console.log('what?', this.props)
+    return (
+      <div className="tweets-app">
+        <h1>Hola mundo genial</h1>
+        {/* <Tweets /> */}
+        {/* <Loader />
+        <NotificationBar /> */}
 
-    {/* <Tweets tweets={this.state.tweets} />
+        {/* <Tweets tweets={this.state.tweets} />
     <Loader paging={this.state.paging} />
     <NotificationBar
       count={this.state.count}
       onShowNewTweets={this.showNewTweets}
     /> */}
-  </div>
-)
+      </div>
+    )
+  }
+}
 
 export default TweetsApp

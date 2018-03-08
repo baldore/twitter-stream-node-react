@@ -1,4 +1,5 @@
 import * as mongoose from 'mongoose'
+import { Tweet } from '../types/tweets'
 
 const schema = new mongoose.Schema({
   twid: String,
@@ -12,11 +13,15 @@ const schema = new mongoose.Schema({
 
 const Tweet = mongoose.model('Tweet', schema)
 
-schema.statics.getTweets = async function(page: number, skip: number) {
+export const getTweets = async function(
+  page: number,
+  skip: number,
+): Promise<Tweet[]> {
   const start = page * 10 + skip * 1
 
-  const tweets = await Tweet.find({}, { skip: start, limit: 10 })
+  const tweets: Tweet[] = await Tweet.find({}, null, { skip: start, limit: 10 })
     .sort({ date: 'desc' })
+    .lean()
     .exec()
 
   const processedTweets = tweets.map(tweet => ({ ...tweet, active: true }))
