@@ -5,6 +5,7 @@ import { Tweet as TweetType } from '../types/tweets'
 import Tweet from '../models/Tweet'
 import * as socketIO from 'socket.io'
 import { Socket } from 'dgram'
+import socketEvents from './tweetsEvents'
 
 const twitter = require('ntwitter')
 const twitterInstance = new twitter(config.twitter)
@@ -41,6 +42,6 @@ export function setupTweetsStreaming(io: SocketIO.Server) {
 
     const tweetEntry = new Tweet(tweet)
     await tweetEntry.save()
-    io.emit('tweet', tweet)
+    io.emit(socketEvents.tweet, tweet)
   })
 }
