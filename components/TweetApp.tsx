@@ -3,8 +3,10 @@ import Tweets from './Tweets'
 import Loader from './Loader'
 import NotificationBar from './NotificationBar'
 
+const makeAjaxCall = () => {}
+
 const TweetsApp = () => (
-  <div className="tweets-app">
+  <div className="tweets-app" onClick={makeAjaxCall}>
     <Tweets />
     <Loader />
     <NotificationBar />
