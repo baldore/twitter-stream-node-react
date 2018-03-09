@@ -21,18 +21,31 @@ interface TweetsAppProps {
 }
 
 const TweetsAppStream = componentFromStream(
-  (props$: Subscribable<TweetsAppProps>) => {
+  (propsStream: Subscribable<TweetsAppProps>) => {
     const socket = io('http://localhost:3000')
+    const newTweets$ = Observable.fromEvent<Tweet>(socket, socketEvents.tweet)
+      // To see that they actually appear on screen
+      .map(tweet => ({ ...tweet, active: true }))
 
-    socket.on(socketEvents.tweet, (tweet: Tweet) => {
-      console.log('tweet', tweet)
-    })
+    const props$ = Observable.from(propsStream)
+    const initialTweets$ = props$.map(props => props.tweets)
 
-    return Observable.from(props$)
-      .do(console.log)
-      .map(props => <TweetsApp tweets={props.tweets} />)
+    const combinedTweets$ = initialTweets$
+      .switchMap(initialTweets =>
+        newTweets$
+          .scan((tweets, newTweet) => [newTweet, ...tweets], initialTweets)
+          .startWith(initialTweets),
+      )
+      .map(tweets => ({ tweets }))
+
+    return combinedTweets$.map(props => <TweetsApp {...props} />)
   },
 )
+
+const log = (x: any) => {
+  console.log(x)
+  return x
+}
 
 const TweetsApp = (props: TweetsAppProps) => (
   <div className="tweets-app">

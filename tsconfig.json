@@ -1,6 +1,7 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "sourceMap": true,
     "jsx": "react",
     "strict": true,
     "moduleResolution": "node",
