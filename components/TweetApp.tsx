@@ -18,27 +18,34 @@ setObservableConfig(rxjsConfig)
 
 interface TweetsAppProps {
   tweets: Tweet[]
+  count: number
 }
 
 const TweetsAppStream = componentFromStream(
   (propsStream: Subscribable<TweetsAppProps>) => {
     const socket = io('http://localhost:3000')
     const newTweets$ = Observable.fromEvent<Tweet>(socket, socketEvents.tweet)
-      // To see that they actually appear on screen
-      .map(tweet => ({ ...tweet, active: true }))
+    // To see that they actually appear on screen
+    // .map(tweet => ({ ...tweet, active: true }))
 
     const props$ = Observable.from(propsStream)
     const initialTweets$ = props$.map(props => props.tweets)
 
-    const combinedTweets$ = initialTweets$
-      .switchMap(initialTweets =>
-        newTweets$
-          .scan((tweets, newTweet) => [newTweet, ...tweets], initialTweets)
-          .startWith(initialTweets),
-      )
-      .map(tweets => ({ tweets }))
+    const combinedTweets$ = initialTweets$.switchMap(initialTweets =>
+      newTweets$
+        .scan((tweets, newTweet) => [newTweet, ...tweets], initialTweets)
+        .startWith(initialTweets),
+    )
 
-    return combinedTweets$.map(props => <TweetsApp {...props} />)
+    const finalProps$ = Observable.combineLatest<TweetsAppProps>(
+      combinedTweets$,
+      (tweets: Tweet[]) => ({
+        tweets,
+        count: tweets.filter(tweet => tweet.active === false).length,
+      }),
+    )
+
+    return finalProps$.map(props => <TweetsApp {...props} />)
   },
 )
 
@@ -50,6 +57,7 @@ const log = (x: any) => {
 const TweetsApp = (props: TweetsAppProps) => (
   <div className="tweets-app">
     <Tweets tweets={props.tweets} />
+    <NotificationBar count={props.count} onShowNewTweets={() => ({})} />
     {/* <Loader />
         <NotificationBar /> */}
 

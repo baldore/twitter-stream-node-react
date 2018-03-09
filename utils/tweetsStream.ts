@@ -14,7 +14,9 @@ const tweetsInitialStream$: Observable<any> = Observable.create(
   (observer: any) => {
     twitterInstance.stream(
       'statuses/filter',
-      { track: 'scotch_io, #scotchio, #foobarbaz' },
+      {
+        track: '#javascript, #rxjs',
+      },
       function(stream: any) {
         observer.next(stream)
       },
