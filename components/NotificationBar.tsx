@@ -2,7 +2,12 @@ import * as React from 'react'
 
 interface NotificationBarProps {
   count: number
-  onShowNewTweets: () => {}
+  onShowNewTweets: (...args: any[]) => void
+}
+
+const log = (x: any) => {
+  console.log(x)
+  return x
 }
 
 const NotificationBar = (props: NotificationBarProps) => (

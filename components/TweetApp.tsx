@@ -6,6 +6,7 @@ import {
   setObservableConfig,
   componentFromStream,
   Subscribable,
+  createEventHandler,
 } from 'recompose'
 
 import Tweets from './Tweets'
@@ -19,6 +20,7 @@ setObservableConfig(rxjsConfig)
 interface TweetsAppProps {
   tweets: Tweet[]
   count: number
+  onShowNewTweets: (e: any) => void
 }
 
 type UpdateTweetsAction = {
@@ -58,13 +60,22 @@ function tweetsAppReducer(
 const initialState: TweetsAppProps = {
   count: 0,
   tweets: [],
+  onShowNewTweets() {},
 }
 
-const TweetsAppStream = componentFromStream(
+interface TweetsAppStreamProps {
+  tweets: Tweet[]
+}
+
+const TweetsAppStream = componentFromStream<TweetsAppStreamProps>(
   (propsStream: Subscribable<TweetsAppProps>) => {
     const socket = io('http://localhost:3000')
     const newTweets$ = Observable.fromEvent<Tweet>(socket, socketEvents.tweet)
     const props$ = Observable.from(propsStream)
+
+    const showAllTweetsEvent = createEventHandler()
+    const showAllTweetsHandler = showAllTweetsEvent.handler
+    const showAllTweets$ = Observable.from(showAllTweetsEvent.stream)
 
     const initialTweets$ = props$.map(props => props.tweets)
     const allTweets$ = initialTweets$.switchMap(initialTweets =>
@@ -87,10 +98,15 @@ const TweetsAppStream = componentFromStream(
       }),
     )
 
+    const initialProps = {
+      ...initialState,
+      onShowNewTweets: showAllTweetsHandler,
+    }
+
     const finalProps$ = Observable.merge(
       updateTweetsAction$,
       updateCountAction$,
-    ).scan(tweetsAppReducer, initialState)
+    ).scan(tweetsAppReducer, initialProps)
 
     return finalProps$.map(props => <TweetsApp {...props} />)
   },
@@ -104,7 +120,10 @@ const log = (x: any) => {
 const TweetsApp = (props: TweetsAppProps) => (
   <div className="tweets-app">
     <Tweets tweets={props.tweets} />
-    <NotificationBar count={props.count} onShowNewTweets={() => ({})} />
+    <NotificationBar
+      count={props.count}
+      onShowNewTweets={props.onShowNewTweets}
+    />
     {/* <Loader />
         <NotificationBar /> */}
 
