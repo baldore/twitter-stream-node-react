@@ -23,38 +23,8 @@ interface TweetsAppProps {
   onShowNewTweets: (e: any) => void
 }
 
-type UpdateTweetsAction = {
-  type: 'update-tweets'
+interface TweetsAppStreamProps {
   tweets: Tweet[]
-}
-
-type UpdateCountAction = {
-  type: 'update-count'
-  count: number
-}
-
-type TweetsAppActions = UpdateTweetsAction | UpdateCountAction
-
-function tweetsAppReducer(
-  state: TweetsAppProps,
-  action: TweetsAppActions,
-): TweetsAppProps {
-  switch (action.type) {
-    case 'update-tweets':
-      return {
-        ...state,
-        tweets: action.tweets,
-      }
-
-    case 'update-count':
-      return {
-        ...state,
-        count: action.count,
-      }
-
-    default:
-      return state
-  }
 }
 
 const initialState: TweetsAppProps = {
@@ -63,59 +33,46 @@ const initialState: TweetsAppProps = {
   onShowNewTweets() {},
 }
 
-interface TweetsAppStreamProps {
-  tweets: Tweet[]
-}
-
 const TweetsAppStream = componentFromStream<TweetsAppStreamProps>(
   (propsStream: Subscribable<TweetsAppProps>) => {
+    const props$ = Observable.from(propsStream)
+
     const socket = io('http://localhost:3000')
     const newTweets$ = Observable.fromEvent<Tweet>(socket, socketEvents.tweet)
-    const props$ = Observable.from(propsStream)
 
     const showAllTweetsEvent = createEventHandler()
     const showAllTweetsHandler = showAllTweetsEvent.handler
     const showAllTweets$ = Observable.from(showAllTweetsEvent.stream)
 
     const initialTweets$ = props$.map(props => props.tweets)
-    const allTweets$ = initialTweets$.switchMap(initialTweets =>
-      newTweets$
-        .scan((tweets, newTweet) => [newTweet, ...tweets], initialTweets)
-        .startWith(initialTweets),
+
+    const allTweets$: Observable<Tweet[]> = initialTweets$.switchMap(
+      initialTweets =>
+        Observable.merge(
+          showAllTweets$.mapTo({ type: 'show-all-tweets' }),
+          newTweets$.map(tweet => ({ type: 'add-tweet', tweet })),
+        ).scan((tweets, action: any) => {
+          if (action.type === 'show-all-tweets') {
+            return tweets.map(tweet => ({ ...tweet, active: true }))
+          }
+
+          if (action.type === 'add-tweet') {
+            return [action.tweet, ...tweets]
+          }
+
+          return tweets
+        }, initialTweets),
     )
 
-    const updateTweetsAction$ = allTweets$.map<Tweet[], UpdateTweetsAction>(
-      tweets => ({
-        type: 'update-tweets',
-        tweets,
-      }),
-    )
-
-    const updateCountAction$ = allTweets$.map<Tweet[], UpdateCountAction>(
-      tweets => ({
-        type: 'update-count',
-        count: tweets.filter(tweet => tweet.active === false).length,
-      }),
-    )
-
-    const initialProps = {
-      ...initialState,
+    const finalProps$ = allTweets$.map<Tweet[], TweetsAppProps>(tweets => ({
+      tweets,
       onShowNewTweets: showAllTweetsHandler,
-    }
-
-    const finalProps$ = Observable.merge(
-      updateTweetsAction$,
-      updateCountAction$,
-    ).scan(tweetsAppReducer, initialProps)
+      count: tweets.filter(tweet => tweet.active === false).length,
+    }))
 
     return finalProps$.map(props => <TweetsApp {...props} />)
   },
 )
-
-const log = (x: any) => {
-  console.log(x)
-  return x
-}
 
 const TweetsApp = (props: TweetsAppProps) => (
   <div className="tweets-app">
