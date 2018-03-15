@@ -5,7 +5,7 @@ const router = Router()
 
 router.get('/api/tweets/:page/:skip', async (req, res) => {
   const { page, skip } = req.params
-  const tweets = await getTweets(page, skip)
+  const tweets = await getTweets(Number(page), Number(skip))
 
   res.status(200).send({ tweets })
 })

@@ -13,10 +13,7 @@ const schema = new mongoose.Schema({
 
 const Tweet = mongoose.model('Tweet', schema)
 
-export const getTweets = async function(
-  page: number,
-  skip: number,
-): Promise<Tweet[]> {
+export const getTweets = async function(page: number, skip: number): Promise<Tweet[]> {
   const start = page * 10 + skip
 
   const tweets: Tweet[] = await Tweet.find({}, null, { skip: start, limit: 10 })
