@@ -36,10 +36,7 @@ const initialState: TweetsAppProps = {
 
 function getScrollHitsBottomStream() {
   const scroll$ = Observable.fromEvent(window, 'scroll')
-  const improvedScroll$ = Observable.merge(
-    scroll$.throttleTime(80),
-    scroll$.debounceTime(80),
-  )
+  const improvedScroll$ = Observable.merge(scroll$.throttleTime(80), scroll$.debounceTime(80))
 
   const scrollHitsBottom$ = improvedScroll$.filter(() => {
     const { scrollHeight, clientHeight } = document.documentElement
@@ -61,42 +58,37 @@ const tweetsDecorator = mapPropsStream<TweetsAppProps, TweetsAppStreamProps>(
     const showAllTweetsHandler = showAllTweetsEvent.handler
     const showAllTweets$ = Observable.from(showAllTweetsEvent.stream)
 
-    const loadedTweetsSubject = new Subject()
+    const oldTweetsLoadedSubject = new Subject()
 
-    loadedTweetsSubject.subscribe(console.log)
+    const allTweets$: Observable<Tweet[]> = initialTweets$.switchMap(initialTweets =>
+      Observable.merge(
+        showAllTweets$.mapTo({ type: 'show-all-tweets' }),
+        newTweets$.map(tweet => ({ type: 'add-tweet', tweet })),
+        oldTweetsLoadedSubject.map(tweets => ({ type: 'add-old-tweets', tweets })),
+      )
+        .scan((tweets, action: any) => {
+          if (action.type === 'show-all-tweets') {
+            return tweets.map(tweet => ({ ...tweet, active: true }))
+          }
 
-    const allTweets$: Observable<Tweet[]> = initialTweets$.switchMap(
-      initialTweets =>
-        Observable.merge(
-          showAllTweets$.mapTo({ type: 'show-all-tweets' }),
-          newTweets$.map(tweet => ({ type: 'add-tweet', tweet })),
-          loadedTweetsSubject.map(tweets => ({
-            type: 'add-old-tweets',
-            tweets,
-          })),
-        )
-          .scan((tweets, action: any) => {
-            if (action.type === 'show-all-tweets') {
-              return tweets.map(tweet => ({ ...tweet, active: true }))
-            }
+          if (action.type === 'add-tweet') {
+            return [action.tweet, ...tweets]
+          }
 
-            if (action.type === 'add-tweet') {
-              return [action.tweet, ...tweets]
-            }
+          if (action.type === 'add-old-tweets') {
+            return [...tweets, ...action.tweets]
+          }
 
-            if (action.type === 'add-old-tweets') {
-              return [...tweets, ...action.tweets]
-            }
-
-            return tweets
-          }, initialTweets)
-          .startWith(initialTweets),
+          return tweets
+        }, initialTweets)
+        .startWith(initialTweets),
     )
 
     const scrollHitsBottom$ = (process as any).browser
       ? getScrollHitsBottomStream()
       : Observable.never()
-    const infinityScrollLoadTweets$ = scrollHitsBottom$
+
+    const loadOldTweets$ = scrollHitsBottom$
       .withLatestFrom(allTweets$, (_, tweets) => tweets.length)
       .switchMap(skip =>
         Observable.ajax(`http://localhost:3000/api/tweets/0/${skip}`).map(
@@ -104,7 +96,7 @@ const tweetsDecorator = mapPropsStream<TweetsAppProps, TweetsAppStreamProps>(
         ),
       )
 
-    infinityScrollLoadTweets$.subscribe(loadedTweetsSubject)
+    loadOldTweets$.subscribe(oldTweetsLoadedSubject)
 
     const finalProps$ = allTweets$.map<Tweet[], TweetsAppProps>(tweets => ({
       tweets,
@@ -119,10 +111,7 @@ const tweetsDecorator = mapPropsStream<TweetsAppProps, TweetsAppStreamProps>(
 const TweetsApp = (props: TweetsAppProps) => (
   <div className="tweets-app">
     <Tweets tweets={props.tweets} />
-    <NotificationBar
-      count={props.count}
-      onShowNewTweets={props.onShowNewTweets}
-    />
+    <NotificationBar count={props.count} onShowNewTweets={props.onShowNewTweets} />
     {/* <Loader />
         <NotificationBar /> */}
 
